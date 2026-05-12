@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, User } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -18,10 +18,17 @@ export default function ProfilePage() {
   });
   const [saving, setSaving] = useState(false);
 
-  if (!isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    setReady(true);
+  }, [isAuthenticated, router]);
+
+  if (!ready) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

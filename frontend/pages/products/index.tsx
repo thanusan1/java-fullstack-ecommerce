@@ -5,7 +5,7 @@ import Layout from '@/components/layout/Layout';
 import ProductGrid from '@/components/product/ProductGrid';
 import Pagination from '@/components/ui/Pagination';
 import { productsApi, categoriesApi } from '@/lib/api';
-import { Product, Category, PageResponse } from '@/types';
+import { Product, Category, PageResponse, ProductFilters } from '@/types';
 
 const SORT_OPTIONS = [
   { value: 'newest',     label: 'Newest First' },
@@ -25,7 +25,11 @@ export default function ProductsPage() {
 
   const search     = (router.query.search     as string) || '';
   const categoryId = router.query.categoryId  ? Number(router.query.categoryId)  : undefined;
-  const sort       = (router.query.sort       as string) || 'newest';
+  const sortParam  = router.query.sort;
+  const sort: ProductFilters['sort'] =
+    typeof sortParam === 'string' && SORT_OPTIONS.some(o => o.value === sortParam)
+      ? (sortParam as ProductFilters['sort'])
+      : 'newest';
   const page       = router.query.page        ? Number(router.query.page) - 1     : 0;
 
   const fetchProducts = useCallback(async () => {

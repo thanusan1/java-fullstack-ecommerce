@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
 import { ShieldCheck, CreditCard, Truck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useCart } from '@/context/CartContext';
