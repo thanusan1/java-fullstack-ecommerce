@@ -57,3 +57,15 @@ export function getStars(rating: number): ('full' | 'half' | 'empty')[] {
   }
   return stars;
 }
+
+/** Resolve image URLs that may be stored as relative paths (e.g., /uploads/...). */
+export function resolveImageUrl(url?: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+  const origin = apiBase.replace(/\/?api\/v1\/?$/, '');
+
+  if (url.startsWith('/')) return `${origin}${url}`;
+  return `${origin}/${url}`;
+}

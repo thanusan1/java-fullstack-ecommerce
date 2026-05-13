@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingCart, Star, Heart } from 'lucide-react';
 import { Product } from '@/types';
-import { formatPrice, cn } from '@/utils/helpers';
+import { formatPrice, cn, resolveImageUrl } from '@/utils/helpers';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
@@ -51,7 +51,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         {/* Image */}
         <div className="relative aspect-square bg-gray-100 overflow-hidden">
           <Image
-            src={product.imageUrl || 'https://via.placeholder.com/400x400?text=No+Image'}
+            src={resolveImageUrl(product.imageUrl) || 'https://via.placeholder.com/400x400?text=No+Image'}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

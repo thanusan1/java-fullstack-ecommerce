@@ -6,7 +6,7 @@ import { ShoppingCart, Star, Truck, RefreshCw, ShieldCheck, ChevronRight, Minus,
 import Layout from '@/components/layout/Layout';
 import { productsApi } from '@/lib/api';
 import { Product } from '@/types';
-import { formatPrice, cn } from '@/utils/helpers';
+import { formatPrice, cn, resolveImageUrl } from '@/utils/helpers';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
@@ -21,6 +21,7 @@ export default function ProductDetailPage({ product }: Props) {
   const [qty, setQty]       = useState(1);
   const [adding, setAdding] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const imageUrl = resolveImageUrl(product.imageUrl) || 'https://via.placeholder.com/600x600?text=No+Image';
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -71,9 +72,7 @@ export default function ProductDetailPage({ product }: Props) {
           <div className="space-y-4">
             <div className="relative aspect-square bg-gray-100 rounded-2xl overflow-hidden">
               <Image
-                src={imgError
-                  ? 'https://via.placeholder.com/600x600?text=No+Image'
-                  : (product.imageUrl || 'https://via.placeholder.com/600x600?text=No+Image')}
+                src={imgError ? 'https://via.placeholder.com/600x600?text=No+Image' : imageUrl}
                 alt={product.name}
                 fill
                 className="object-cover"
