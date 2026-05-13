@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { ArrowLeft, Save } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { productsApi, categoriesApi } from '@/lib/api';
+import { productsApi, categoriesApi, uploadsApi } from '@/lib/api';
 import { Category } from '@/types';
 import { getErrorMessage } from '@/utils/helpers';
 import toast from 'react-hot-toast';
@@ -23,6 +23,8 @@ export default function EditProductPage() {
   const [form, setForm]             = useState<ProductForm | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving]         = useState(false);
+  const [uploading, setUploading]   = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [errors, setErrors]         = useState<Partial<ProductForm>>({});
 
   useEffect(() => {
@@ -64,6 +66,10 @@ export default function EditProductPage() {
         [k]: e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value,
       }) : f);
 
+  useEffect(() => {
+    setImageError(false);
+  }, [form?.imageUrl]);
+
   const validate = () => {
     if (!form) return false;
     const e: Partial<ProductForm> = {};
@@ -93,6 +99,19 @@ export default function EditProductPage() {
       toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploading(true);
+      const res = await uploadsApi.uploadProductImage(file);
+      setForm(f => f ? ({ ...f, imageUrl: res.data.data }) : f);
+      toast.success('Image uploaded');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -177,12 +196,34 @@ export default function EditProductPage() {
               <div className="card p-6">
                 <h2 className="font-bold text-gray-900 mb-4">Media</h2>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file);
+                    }}
+                    className="input-field"
+                  />
+                  {uploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
+
+                  <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">Image URL</label>
                   <input type="url" value={form.imageUrl} onChange={set('imageUrl')} className="input-field" />
                   {form.imageUrl && (
                     <div className="mt-3 w-32 h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                      <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover"
-                        onError={e => (e.currentTarget.style.display = 'none')} />
+                      {!imageError ? (
+                        <img
+                          src={form.imageUrl}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                          onError={() => setImageError(true)}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center px-2 text-center text-xs text-gray-500">
+                          Preview unavailable
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

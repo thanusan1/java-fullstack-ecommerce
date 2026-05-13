@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                 // User-only endpoints
                 .requestMatchers("/api/v1/cart/**").hasRole("USER")
                 .requestMatchers(HttpMethod.POST, "/api/v1/orders").hasRole("USER")
@@ -56,6 +57,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/uploads/**").hasRole("ADMIN")
                 // Everything else requires authentication
                 .anyRequest().authenticated()
             )

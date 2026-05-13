@@ -88,3 +88,14 @@ export const ordersApi = {
       params: { status },
     }),
 };
+
+// ─── Uploads ───────────────────────────────────────────────
+export const uploadsApi = {
+  uploadProductImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post<ApiResponse<string>>('/uploads/product-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};

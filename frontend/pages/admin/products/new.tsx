@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { ArrowLeft, Save } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { productsApi, categoriesApi } from '@/lib/api';
+import { productsApi, categoriesApi, uploadsApi } from '@/lib/api';
 import { Category } from '@/types';
 import { getErrorMessage } from '@/utils/helpers';
 import toast from 'react-hot-toast';
@@ -29,6 +29,8 @@ export default function NewProductPage() {
   const [form, setForm]         = useState<ProductForm>(EMPTY);
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving]     = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [errors, setErrors]     = useState<Partial<ProductForm>>({});
 
   useEffect(() => {
@@ -39,6 +41,10 @@ export default function NewProductPage() {
       productsApi.getBySlug(String(editId)).catch(() => {});
     }
   }, [isAuthenticated, isAdmin, editId]);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [form.imageUrl]);
 
   const set = (k: keyof ProductForm) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -73,6 +79,19 @@ export default function NewProductPage() {
       toast.error(getErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploading(true);
+      const res = await uploadsApi.uploadProductImage(file);
+      setForm(f => ({ ...f, imageUrl: res.data.data }));
+      toast.success('Image uploaded');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -171,13 +190,35 @@ export default function NewProductPage() {
               <div className="card p-6">
                 <h2 className="font-bold text-gray-900 mb-4">Media</h2>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file);
+                    }}
+                    className="input-field"
+                  />
+                  {uploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
+
+                  <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">Image URL</label>
                   <input type="url" value={form.imageUrl} onChange={set('imageUrl')}
                     placeholder="https://example.com/image.jpg" className="input-field" />
                   {form.imageUrl && (
                     <div className="mt-3 w-32 h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                      <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover"
-                        onError={e => (e.currentTarget.style.display = 'none')} />
+                      {!imageError ? (
+                        <img
+                          src={form.imageUrl}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                          onError={() => setImageError(true)}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center px-2 text-center text-xs text-gray-500">
+                          Preview unavailable
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

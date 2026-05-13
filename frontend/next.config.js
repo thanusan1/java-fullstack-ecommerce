@@ -3,7 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
+      { protocol: 'http', hostname: 'localhost', port: '8080' },
+      { protocol: 'https', hostname: 'amiable-wholeness-production-b20d.up.railway.app' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'kommodo.ai' },
       { protocol: 'https', hostname: 'via.placeholder.com' },
     ],
   },
